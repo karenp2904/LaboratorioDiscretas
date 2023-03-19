@@ -17,14 +17,15 @@ public class RutaEnTiempo {
         for (int i = 0; i < cantidad; i++) {
             do {
                 do {
-                    System.out.println("\nCoordenadas " + i);
+                    temporal=coordenadasX[i];
+                    System.out.println("\nCoordenadas " + i);//ingreso de coordenadas en x
                     System.out.println("Ingrese X ");
                     coordenadasX[i] = sc.nextInt();
-                } while (coordenadasX[i] < coordenadasX[i - 1]);
+                } while (coordenadasX[i] < temporal);//no se puede retroceder en x
             } while (coordenadasX[i] < -10000 || coordenadasX[i] > 10000);
 
             do {
-                System.out.println("Ingrese y: ");
+                System.out.println("Ingrese y: ");//ingreso de coordenadas en y
                 coordenadasY[i] = sc.nextInt();
             } while (coordenadasY[i] < -10000 || coordenadasY[i] > 10000);
         }
@@ -40,12 +41,41 @@ public class RutaEnTiempo {
             vc=sc.nextInt();
         }while(vc<1||vc>10);
 
+        double distancia = 0; double distanciaMont; double tiempoMin=0;
+        for (int i = 0; i <cantidad; i++){
+            distanciaMont=calcularDistanciaEntrePuntos(coordenadasX[i], coordenadasX[i+1],coordenadasY[i], coordenadasY[i+1]);
+            if ((coordenadasY[i]>0&&coordenadasY[i+1]<0) || (coordenadasY[i]<0 && coordenadasY[i+1]>0)){//cueva
+                distancia+=distanciaMont;// añade a la distancia la distanciA de un punto a otro cuando y es negativo, no podra atravesar una cueva
+                tiempoMin+=distanciaMont/vw;// a distancia de ese tramo con la velocidad de caminata será el tiempo en ese tramo se acumulará
+            }else{
+                double distanciaHorizontal=calcularDistanciaHorizontal(coordenadasX[i], coordenadasX[i+1]);
+                if(vw>vc || vw<vc){ // se caminaaa o se cava segun el tiempo transcurrido en ese intervalo
+                    double tiempoMont=distanciaMont/vw;
+                    double tiempoCueva=distanciaHorizontal/vc;
+                    if (tiempoMont>tiempoCueva){
+                        tiempoMin+=tiempoCueva;
+                    }else{
+                        tiempoMin+=tiempoMont;
+                    }
+                }
+                if (vw==vc) {
+                    //se mira la longitud de la montaña
+                    if (distanciaMont > distanciaHorizontal) {
+                        tiempoMin += distanciaHorizontal / vc;
+                    } else {
+                        tiempoMin += distanciaMont / vw;
+                    }
+                }
+
+            }
+        }
+        System.out.println("El tiempo es: " +tiempoMin);
+
 
 
     }
 
-
-    public static double calcularDistanciaEntrePuntos(int x1, int y1, int x2, int y2) {
+    public static double calcularDistanciaEntrePuntos(int x1, int x2, int y1, int y2) {
         double distancia = 0;
         int elemeto1= (int) Math.pow(x2-x1,2);
         int elemeto2= (int) Math.pow(y2-y1,2);
@@ -53,5 +83,11 @@ public class RutaEnTiempo {
 
         return distancia;
     }
+    public static double calcularDistanciaHorizontal(int x1, int x2){
+       double resultado;
+       resultado=(x2-x1);
+       return resultado;
+    }
+
 
 }
